@@ -1,14 +1,19 @@
+from services.prediction_service import predict_sentiment
+
+
 def predict_bulk(reviews):
     """
-    Temporary bulk prediction function.
-
-    The actual BERT model will be connected here later.
+    Predict sentiment for multiple reviews.
     """
+
     results = []
 
     for review in reviews:
+
         if review and str(review).strip():
-            results.append("Model not connected yet")
+            results.append(
+                predict_sentiment(review)
+            )
         else:
             results.append("Invalid review")
 
