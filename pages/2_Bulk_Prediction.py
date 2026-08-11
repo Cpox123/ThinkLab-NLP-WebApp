@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 import pandas as pd
 
@@ -200,4 +200,4 @@ if uploaded_file is not None:
                     file_name="sentiment_predictions.csv",
                     mime="text/csv",
                 )
-```
+
