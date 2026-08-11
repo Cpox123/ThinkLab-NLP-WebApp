@@ -1,10 +1,17 @@
+
 import os
+
+# Must be set before importing TensorFlow
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
+
 import tensorflow as tf
 import gdown
 
-from transformers import BertConfig, TFBertForSequenceClassification, BertTokenizer
-
+from transformers import (
+    BertConfig,
+    TFBertForSequenceClassification,
+    BertTokenizer,
+)
 
 # --------------------------------------------------
 # Configuration
@@ -18,7 +25,7 @@ MODEL_FILE_ID = "1JvmGJPC0Xr7qTK1eZxkXP0zjrD-aD64P"
 LABELS = [
     "Negative",
     "Neutral",
-    "Positive"
+    "Positive",
 ]
 
 MAX_SEQUENCE_LENGTH = 128
@@ -44,7 +51,7 @@ def _download_model():
     gdown.download(
         url,
         MODEL_PATH,
-        quiet=False
+        quiet=False,
     )
 
     print("BERT model downloaded successfully.")
@@ -60,7 +67,7 @@ _download_model()
 
 config = BertConfig.from_pretrained(
     "bert-base-uncased",
-    num_labels=3
+    num_labels=3,
 )
 
 model = TFBertForSequenceClassification(config)
@@ -69,15 +76,15 @@ model = TFBertForSequenceClassification(config)
 dummy_input = {
     "input_ids": tf.zeros(
         (1, MAX_SEQUENCE_LENGTH),
-        dtype=tf.int32
+        dtype=tf.int32,
     ),
     "attention_mask": tf.ones(
         (1, MAX_SEQUENCE_LENGTH),
-        dtype=tf.int32
+        dtype=tf.int32,
     ),
     "token_type_ids": tf.zeros(
         (1, MAX_SEQUENCE_LENGTH),
-        dtype=tf.int32
+        dtype=tf.int32,
     ),
 }
 
@@ -116,16 +123,17 @@ def predict_sentiment(review):
         return_tensors="tf",
         padding=True,
         truncation=True,
-        max_length=MAX_SEQUENCE_LENGTH
+        max_length=MAX_SEQUENCE_LENGTH,
     )
 
     outputs = model(inputs)
 
     probabilities = tf.nn.softmax(
         outputs.logits,
-        axis=-1
+        axis=-1,
     ).numpy()[0]
 
     predicted_index = int(probabilities.argmax())
 
     return LABELS[predicted_index]
+
