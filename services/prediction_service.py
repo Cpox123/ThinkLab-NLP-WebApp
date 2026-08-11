@@ -1,5 +1,5 @@
+
 import os
-import streamlit as st
 
 # Must be set before importing TensorFlow
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
@@ -58,60 +58,47 @@ def _download_model():
 
 
 # --------------------------------------------------
-# Load and cache model + tokenizer
+# Load model and tokenizer
 # --------------------------------------------------
 
-@st.cache_resource
-def load_model_and_tokenizer():
-    """Load and cache the BERT model and tokenizer."""
+print("Loading BERT sentiment model...")
 
-    print("Loading BERT sentiment model...")
+_download_model()
 
-    _download_model()
+config = BertConfig.from_pretrained(
+    "bert-base-uncased",
+    num_labels=3,
+)
 
-    config = BertConfig.from_pretrained(
-        "bert-base-uncased",
-        num_labels=3,
-    )
+model = TFBertForSequenceClassification(config)
 
-    model = TFBertForSequenceClassification(config)
+# Build the model before loading weights
+dummy_input = {
+    "input_ids": tf.zeros(
+        (1, MAX_SEQUENCE_LENGTH),
+        dtype=tf.int32,
+    ),
+    "attention_mask": tf.ones(
+        (1, MAX_SEQUENCE_LENGTH),
+        dtype=tf.int32,
+    ),
+    "token_type_ids": tf.zeros(
+        (1, MAX_SEQUENCE_LENGTH),
+        dtype=tf.int32,
+    ),
+}
 
-    # Build the model before loading weights
+model(dummy_input)
 
-    dummy_input = {
-        "input_ids": tf.zeros(
-            (1, MAX_SEQUENCE_LENGTH),
-            dtype=tf.int32,
-        ),
-        "attention_mask": tf.ones(
-            (1, MAX_SEQUENCE_LENGTH),
-            dtype=tf.int32,
-        ),
-        "token_type_ids": tf.zeros(
-            (1, MAX_SEQUENCE_LENGTH),
-            dtype=tf.int32,
-        ),
-    }
+# Load trained weights
+model.load_weights(MODEL_PATH)
 
-    model(dummy_input)
+# Load tokenizer
+tokenizer = BertTokenizer.from_pretrained(
+    "bert-base-uncased"
+)
 
-    # Load trained weights
-
-    model.load_weights(MODEL_PATH)
-
-    # Load tokenizer
-
-    tokenizer = BertTokenizer.from_pretrained(
-        "bert-base-uncased"
-    )
-
-    print("BERT sentiment model loaded successfully.")
-
-    return model, tokenizer
-
-
-# Load model and tokenizer once and reuse them
-model, tokenizer = load_model_and_tokenizer()
+print("BERT sentiment model loaded successfully.")
 
 
 # --------------------------------------------------
@@ -139,10 +126,7 @@ def predict_sentiment(review):
         max_length=MAX_SEQUENCE_LENGTH,
     )
 
-    outputs = model(
-        inputs,
-        training=False,
-    )
+    outputs = model(inputs)
 
     probabilities = tf.nn.softmax(
         outputs.logits,
@@ -152,3 +136,4 @@ def predict_sentiment(review):
     predicted_index = int(probabilities.argmax())
 
     return LABELS[predicted_index]
+
