@@ -1,5 +1,5 @@
 streamlit
-tensorflow
-transformers>=4.39.0
-tf-keras
+tensorflow==2.21.0
+transformers==4.39.3
 gdown
+tf-keras
