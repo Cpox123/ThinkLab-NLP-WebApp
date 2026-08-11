@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 
 from config.project_data import PROJECT_TITLE, DATASET_NAME
@@ -47,4 +47,4 @@ if st.button("Predict Sentiment"):
 
         else:
             st.success(f"Prediction: {prediction}")
-```
+
