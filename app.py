@@ -1,5 +1,9 @@
+```python
 import streamlit as st
+
 from config.project_data import PROJECT_TITLE, DATASET_NAME
+from services.prediction_service import predict_sentiment
+
 
 st.set_page_config(
     page_title="ThinkLab Sentiment Analyzer",
@@ -9,9 +13,7 @@ st.set_page_config(
 
 st.title("ThinkLab NLP Sentiment Analyzer")
 
-st.write(
-    "Product Review Sentiment Classification System"
-)
+st.write("Product Review Sentiment Classification System")
 
 st.subheader("Project Overview")
 
@@ -22,7 +24,27 @@ st.write(
 
 st.write(f"Dataset: {DATASET_NAME}")
 
-st.info(
-    "The final application will use the selected best-performing "
-    "model for sentiment prediction."
+
+st.subheader("Sentiment Prediction")
+
+review = st.text_area(
+    "Enter a product review:",
+    placeholder="Example: The dress is beautiful and I really love it.",
+    height=150,
 )
+
+if st.button("Predict Sentiment"):
+
+    if not review.strip():
+        st.warning("Please enter a review.")
+
+    else:
+        with st.spinner("Analyzing review..."):
+            prediction = predict_sentiment(review)
+
+        if prediction is None:
+            st.warning("Please enter a valid review.")
+
+        else:
+            st.success(f"Prediction: {prediction}")
+```
