@@ -1,4 +1,0 @@
-streamlit
-tensorflow
-transformers==4.38.2
-gdown
