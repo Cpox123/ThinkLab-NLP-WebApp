@@ -735,7 +735,7 @@ def bulk_requirements_html(row_limit, candidates):
             f"Maximum {row_limit:,} reviews are processed per file",
         ]
     )
-    return panel_html(checks, "CSV Requirements", "📋")
+    return panel_html(f'<div style="color:{TEXT_DARK};">{checks}</div>',"CSV Requirements","📋",)
 
 
 def example_csv_html():
