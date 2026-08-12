@@ -1,9 +1,9 @@
-
 import os
 
 # Must be set before importing TensorFlow
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
 
+import streamlit as st
 import tensorflow as tf
 import gdown
 
@@ -12,6 +12,7 @@ from transformers import (
     TFBertForSequenceClassification,
     BertTokenizer,
 )
+
 
 # --------------------------------------------------
 # Configuration
@@ -30,8 +31,14 @@ LABELS = [
 
 MAX_SEQUENCE_LENGTH = 128
 
-# Reviews forwarded to the model in a single tensor pass
+# Normal inference batch size.
+# 32 gives good throughput while remaining reasonable for a small
+# deployment environment.
 BATCH_SIZE = 32
+
+# If the deployment environment cannot handle 32 reviews at once,
+# inference automatically falls back to smaller batches.
+MIN_BATCH_SIZE = 4
 
 
 # --------------------------------------------------
@@ -39,7 +46,7 @@ BATCH_SIZE = 32
 # --------------------------------------------------
 
 def _download_model():
-    """Download the trained BERT model from Google Drive."""
+    """Download the trained BERT model only when necessary."""
 
     os.makedirs("models", exist_ok=True)
 
@@ -57,141 +64,236 @@ def _download_model():
         quiet=False,
     )
 
+    if not os.path.exists(MODEL_PATH):
+        raise FileNotFoundError(
+            "The BERT model could not be downloaded."
+        )
+
     print("BERT model downloaded successfully.")
 
 
 # --------------------------------------------------
-# Load model and tokenizer
+# Cached model and tokenizer
 # --------------------------------------------------
 
-print("Loading BERT sentiment model...")
-
-_download_model()
-
-config = BertConfig.from_pretrained(
-    "bert-base-uncased",
-    num_labels=3,
-)
-
-model = TFBertForSequenceClassification(config)
-
-# Build the model before loading weights
-dummy_input = {
-    "input_ids": tf.zeros(
-        (1, MAX_SEQUENCE_LENGTH),
-        dtype=tf.int32,
-    ),
-    "attention_mask": tf.ones(
-        (1, MAX_SEQUENCE_LENGTH),
-        dtype=tf.int32,
-    ),
-    "token_type_ids": tf.zeros(
-        (1, MAX_SEQUENCE_LENGTH),
-        dtype=tf.int32,
-    ),
-}
-
-model(dummy_input)
-
-# Load trained weights
-model.load_weights(MODEL_PATH)
-
-# Load tokenizer
-tokenizer = BertTokenizer.from_pretrained(
-    "bert-base-uncased"
-)
-
-print("BERT sentiment model loaded successfully.")
-
-
-# --------------------------------------------------
-# Batch prediction with probabilities
-# --------------------------------------------------
-
-def predict_batch_with_probabilities(reviews, progress_callback=None):
+@st.cache_resource(show_spinner="Loading BERT sentiment model...")
+def _load_model_and_tokenizer():
     """
-    Predict sentiments for a list of reviews in batched tensor passes.
+    Load the BERT model and tokenizer once per Streamlit process.
 
-    Args:
-        reviews: list of review texts (any type; empty/None treated as invalid).
-        progress_callback: optional callable(done_count, total_count) invoked
-            after every processed batch (valid reviews only).
+    Streamlit reruns the application script frequently. Using
+    cache_resource prevents the expensive model construction and
+    weight loading from happening repeatedly.
+    """
+
+    _download_model()
+
+    config = BertConfig.from_pretrained(
+        "bert-base-uncased",
+        num_labels=3,
+    )
+
+    model = TFBertForSequenceClassification(config)
+
+    # Build the model before loading the trained weights.
+    dummy_input = {
+        "input_ids": tf.zeros(
+            (1, MAX_SEQUENCE_LENGTH),
+            dtype=tf.int32,
+        ),
+        "attention_mask": tf.ones(
+            (1, MAX_SEQUENCE_LENGTH),
+            dtype=tf.int32,
+        ),
+        "token_type_ids": tf.zeros(
+            (1, MAX_SEQUENCE_LENGTH),
+            dtype=tf.int32,
+        ),
+    }
+
+    model(dummy_input, training=False)
+
+    # Load the trained weights.
+    model.load_weights(MODEL_PATH)
+
+    # Inference only. The model is never trained by the web app.
+    model.trainable = False
+
+    tokenizer = BertTokenizer.from_pretrained(
+        "bert-base-uncased"
+    )
+
+    return model, tokenizer
+
+
+# --------------------------------------------------
+# Get cached resources
+# --------------------------------------------------
+
+model, tokenizer = _load_model_and_tokenizer()
+
+
+# --------------------------------------------------
+# One batch inference
+# --------------------------------------------------
+
+def _predict_batch(chunk_texts):
+    """
+    Run one inference batch.
 
     Returns:
-        List with one element per input review:
-            (label, probability_dict)  -> ("Positive", {"Negative": 0.01,
-                                                         "Neutral": 0.05,
-                                                         "Positive": 0.94})
-        Empty or whitespace-only reviews get None.
+        NumPy array containing probabilities for each review.
     """
 
-    texts = [str(r).strip() if r is not None else "" for r in reviews]
+    inputs = tokenizer(
+        chunk_texts,
+        return_tensors="tf",
+        padding=True,
+        truncation=True,
+        max_length=MAX_SEQUENCE_LENGTH,
+    )
+
+    outputs = model(
+        inputs,
+        training=False,
+    )
+
+    return tf.nn.softmax(
+        outputs.logits,
+        axis=-1,
+    ).numpy()
+
+
+# --------------------------------------------------
+# Batch prediction with automatic memory fallback
+# --------------------------------------------------
+
+def predict_batch_with_probabilities(
+    reviews,
+    progress_callback=None,
+):
+    """
+    Predict sentiments for a list of reviews using batched inference.
+
+    Empty or whitespace-only reviews are returned as None.
+
+    If the deployment environment cannot handle the normal batch
+    size, the batch is automatically reduced to avoid failing the
+    entire prediction operation.
+    """
+
+    texts = [
+        str(review).strip() if review is not None else ""
+        for review in reviews
+    ]
+
     results = [None] * len(texts)
 
-    valid_indices = [i for i, text in enumerate(texts) if text]
-    valid_texts = [texts[i] for i in valid_indices]
+    valid_indices = [
+        index
+        for index, text in enumerate(texts)
+        if text
+    ]
+
+    valid_texts = [
+        texts[index]
+        for index in valid_indices
+    ]
 
     total = len(valid_texts)
 
-    for start in range(0, total, BATCH_SIZE):
+    if total == 0:
+        return results
 
-        chunk_texts = valid_texts[start:start + BATCH_SIZE]
-        chunk_indices = valid_indices[start:start + BATCH_SIZE]
+    start = 0
+    current_batch_size = BATCH_SIZE
 
-        inputs = tokenizer(
-            chunk_texts,
-            return_tensors="tf",
-            padding=True,
-            truncation=True,
-            max_length=MAX_SEQUENCE_LENGTH,
+    while start < total:
+
+        end = min(
+            start + current_batch_size,
+            total,
         )
 
-        outputs = model(inputs)
+        chunk_texts = valid_texts[start:end]
+        chunk_indices = valid_indices[start:end]
 
-        batch_probabilities = tf.nn.softmax(
-            outputs.logits,
-            axis=-1,
-        ).numpy()
+        try:
+            batch_probabilities = _predict_batch(
+                chunk_texts
+            )
 
-        for position, probs in enumerate(batch_probabilities):
+        except tf.errors.ResourceExhaustedError:
+            # Reduce the batch size if the deployment environment
+            # runs out of memory.
+            if current_batch_size <= MIN_BATCH_SIZE:
+                raise
 
+            current_batch_size = max(
+                MIN_BATCH_SIZE,
+                current_batch_size // 2,
+            )
+
+            print(
+                "BERT batch was too large. "
+                f"Retrying with batch size {current_batch_size}."
+            )
+
+            continue
+
+        for position, probabilities in enumerate(
+            batch_probabilities
+        ):
             index = chunk_indices[position]
-            predicted_index = int(probs.argmax())
+
+            predicted_index = int(
+                probabilities.argmax()
+            )
 
             results[index] = (
                 LABELS[predicted_index],
                 {
-                    label: float(prob)
-                    for label, prob in zip(LABELS, probs)
+                    label: float(probability)
+                    for label, probability in zip(
+                        LABELS,
+                        probabilities,
+                    )
                 },
             )
 
+        processed = end
+
         if progress_callback is not None:
             progress_callback(
-                min(start + BATCH_SIZE, total),
+                processed,
                 total,
             )
+
+        start = end
 
     return results
 
 
 # --------------------------------------------------
-# Single prediction with probabilities
+# Cached single prediction
 # --------------------------------------------------
 
+@st.cache_data(max_entries=128)
 def predict_with_probabilities(review):
     """
-    Predict the sentiment of a single review.
+    Predict the sentiment of one review.
 
-    Returns:
-        (label, probability_dict) or None for an empty/invalid review.
+    A small cache avoids repeating BERT inference when the
+    same review is submitted again.
     """
 
     if not review or not str(review).strip():
         return None
 
+    clean_review = str(review).strip()
+
     return predict_batch_with_probabilities(
-        [str(review).strip()]
+        [clean_review]
     )[0]
 
 
