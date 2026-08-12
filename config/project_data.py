@@ -5,7 +5,7 @@ PROJECT_TITLE = "NLP-based Product Review Sentiment Classification System"
 # --------------------------------------------------
 
 APP_NAME = "NLP Sentiment Analyzer"
-GROUP_NAME = "NLP Group 05"
+GROUP_NAME = "ThinkLab - Group 30"
 COURSE = "CCS3356 Natural Language Processing"
 COPYRIGHT_YEAR = "2026"
 
@@ -114,18 +114,18 @@ PIPELINE_STEPS = [
 
 TEAM_MEMBERS = [
     {
-        "name": "Member 1",
-        "sid": "2023/CS/105",
+        "name": "Member 1 (Leader)",
+        "sid": "CIT-24-01-0118",
         "role": "Data Collection, Preprocessing & ML Models",
     },
     {
         "name": "Member 2",
-        "sid": "2023/CS/112",
+        "sid": "CIT-24-01-0084",
         "role": "DL Models, Evaluation & Results",
     },
     {
         "name": "Member 3",
-        "sid": "2023/CS/118",
+        "sid": "CIT-24-01-0459",
         "role": "Integration, App Development & Deployment",
     },
 ]
