@@ -119,7 +119,7 @@ st.markdown(
         f'line-height:1.7;">'
         "The dataset contains customer reviews and may contain class imbalance. "
         "This can affect the model's ability to identify minority sentiment "
-        "classes, especially Neutral reviews."
+        "classes, especially Neutral reviews. "
         "Model predictions should be treated as automated classifications and "
         "should not be considered perfect representations of customer opinions. "
         "The system is trained on a specific product review dataset, so "
