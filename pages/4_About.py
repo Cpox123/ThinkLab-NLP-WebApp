@@ -117,12 +117,15 @@ st.markdown(
     ui.panel_html(
         f'<div style="color:{ui.TEXT_MUTED}; font-size:0.9rem; '
         f'line-height:1.7;">'
-        "The dataset contains class imbalance, which can affect the model's "
-        "ability to identify minority sentiment classes — especially Neutral "
-        "reviews. Predictions are automated classifications and should not be "
-        "treated as perfect representations of customer opinions. The system "
-        "is trained on a specific product review dataset, so performance may "
-        "differ on reviews from other products or platforms."
+        "The dataset contains customer reviews and may contain class imbalance. "
+        "This can affect the model's ability to identify minority sentiment "
+        "classes, especially Neutral reviews."
+        "<br><br>"
+        "Model predictions should be treated as automated classifications and "
+        "should not be considered perfect representations of customer opinions. "
+        "The system is trained on a specific product review dataset, so "
+        "performance may differ when it is used on reviews from other products, "
+        "platforms, or writing styles."
         "</div>",
         "Ethics, Bias & Limitations",
         "⚖️",
