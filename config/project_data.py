@@ -116,7 +116,7 @@ TEAM_MEMBERS = [
     {
         "name": "Buddhisha Wijerathne (Leader)",
         "sid": "CIT-24-01-0118",
-        "role": "Data Collection, Preprocessing, UI Design & App Development",
+        "role": "Data Collection, Preprocessing, App Development & App Deployment",
     },
     {
         "name": "Shalitha Sachithra",
@@ -126,6 +126,6 @@ TEAM_MEMBERS = [
     {
         "name": "Pawan Vihanga",
         "sid": "CIT-24-01-0459",
-        "role": "Model Testing, Documentation, App Deployment",
+        "role": "Model Testing, Documentation, App Development",
     },
 ]
