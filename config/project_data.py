@@ -114,18 +114,18 @@ PIPELINE_STEPS = [
 
 TEAM_MEMBERS = [
     {
-        "name": "Member 1 (Leader)",
+        "name": "Buddhisha Wijerathne (Leader)",
         "sid": "CIT-24-01-0118",
-        "role": "Data Collection, Preprocessing & ML Models",
+        "role": "Data Collection, Preprocessing, UI Design & App Development",
     },
     {
-        "name": "Member 2",
+        "name": "Shalitha Sachithra",
         "sid": "CIT-24-01-0084",
-        "role": "DL Models, Evaluation & Results",
+        "role": "ML/DL Models, Evaluation, UI Design & App Development",
     },
     {
-        "name": "Member 3",
+        "name": "Pawan Vihanga",
         "sid": "CIT-24-01-0459",
-        "role": "Integration, App Development & Deployment",
+        "role": "Model Testing, Documentation, App Deployment",
     },
 ]
