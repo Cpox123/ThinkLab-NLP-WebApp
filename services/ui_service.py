@@ -203,35 +203,102 @@ def panel_html(body, title=None, icon=None):
 
 
 def stat_card_html(icon, label, value, sublabel, color):
-    return panel_html(
-        f'<div style="display:flex;align-items:center;gap:13px">'
 
-        f'<div style="width:44px;height:44px;min-width:44px;'
-        f'border-radius:10px;background:{_soft(color)};'
-        f'color:{color};font-size:1.3rem;display:flex;'
-        f'align-items:center;justify-content:center">{icon}</div>'
+    value_size = "1.05rem" if len(str(value)) > 18 else "1.2rem"
 
-        f'<div>'
-        f'<div style="font-size:.78rem;opacity:.65;font-weight:600">'
-        f'{label}</div>'
+    return (
+        f'<div style="'
+        f'box-sizing:border-box;'
+        f'min-height:140px;'
+        f'background:{CARD};'
+        f'border:1px solid {BORDER};'
+        f'border-radius:12px;'
+        f'padding:18px;'
+        f'display:flex;'
+        f'align-items:center;'
+        f'gap:14px;'
+        f'color:inherit;'
+        f'">'
 
-        f'<div style="font-size:1.2rem;font-weight:800">'
-        f'{value}</div>'
+        # Icon
+        f'<div style="'
+        f'width:46px;'
+        f'height:46px;'
+        f'min-width:46px;'
+        f'border-radius:11px;'
+        f'background:{_soft(color)};'
+        f'color:{color};'
+        f'font-size:1.3rem;'
+        f'display:flex;'
+        f'align-items:center;'
+        f'justify-content:center;'
+        f'">'
+        f'{icon}'
+        f'</div>'
 
-        f'<div style="font-size:.74rem;opacity:.65">'
-        f'{sublabel}</div>'
+        # Text
+        f'<div style="'
+        f'flex:1;'
+        f'min-width:120px;'
+        f'">'
 
-        f'</div></div>'
+        f'<div style="'
+        f'font-size:.78rem;'
+        f'opacity:.65;'
+        f'font-weight:600;'
+        f'margin-bottom:5px;'
+        f'">'
+        f'{label}'
+        f'</div>'
+
+        f'<div style="'
+        f'font-size:{value_size};'
+        f'font-weight:800;'
+        f'line-height:1.3;'
+        f'margin-bottom:5px;'
+        f'word-break:normal;'
+        f'overflow-wrap:normal;'
+        f'">'
+        f'{value}'
+        f'</div>'
+
+        f'<div style="'
+        f'font-size:.74rem;'
+        f'opacity:.65;'
+        f'line-height:1.3;'
+        f'">'
+        f'{sublabel}'
+        f'</div>'
+
+        f'</div>'
+        f'</div>'
     )
 
 
 def render_stat_cards(cards):
-    for col, card in zip(st.columns(len(cards)), cards):
-        with col:
-            st.markdown(
-                stat_card_html(*card),
-                unsafe_allow_html=True,
-            )
+
+    cards_html = "".join(
+        stat_card_html(*card)
+        for card in cards
+    )
+
+    st.markdown(
+        f'''
+        <div style="
+            display:grid;
+            grid-template-columns:repeat(
+                auto-fit,
+                minmax(230px, 1fr)
+            );
+            gap:16px;
+            width:100%;
+            align-items:stretch;
+        ">
+            {cards_html}
+        </div>
+        ''',
+        unsafe_allow_html=True,
+    )
 
 
 # ==================================================
