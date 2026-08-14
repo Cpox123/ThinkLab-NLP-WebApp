@@ -98,7 +98,7 @@ with right:
 
 st.markdown(
     f'<div style="font-size:1.05rem; font-weight:700; color:{ui.TEXT_DARK}; '
-    f'margin:14px 0 10px 0;">👥 Team Members ({GROUP_NAME})</div>',
+    f'margin:14px 0 10px 0;">👥 ThinkLab Team</div>',
     unsafe_allow_html=True,
 )
 
