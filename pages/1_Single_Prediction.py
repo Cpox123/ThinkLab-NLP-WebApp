@@ -15,7 +15,6 @@ ui.render_page_header(
     "Enter a customer review and predict its sentiment.",
 )
 
-
 # Review input
 review = st.text_area(
     "Product Review",
