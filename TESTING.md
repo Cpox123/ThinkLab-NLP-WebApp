@@ -31,10 +31,10 @@ Pages:
 | SP-01 | Positive prediction | `The dress is beautiful and I love it.` | Positive + confidence | PASS |
 | SP-02 | Negative prediction | `The product is terrible and I want to return it.` | Negative + confidence | PASS |
 | SP-03 | Neutral prediction | `The quality is okay.` | Neutral + confidence | PASS |
-| SP-04 | Empty input | Empty text | Reject or request valid text | TO VERIFY |
-| SP-05 | Punctuation | `Amazing!!! I really love this dress.` | Valid prediction | TO VERIFY |
-| SP-06 | Mixed case | `THIS Product Is Very Good` | Valid prediction | TO VERIFY |
-| SP-07 | Long review | Long valid review | Prediction completes without crash | TO VERIFY |
+| SP-04 | Empty input | Empty text | Reject or request valid text | PASS |
+| SP-05 | Punctuation | `Amazing!!! I really love this dress.` | Valid prediction | PASS |
+| SP-06 | Mixed case | `THIS Product Is Very Good` | Valid prediction | PASS |
+| SP-07 | Long review | Long valid review | Prediction completes without crash | PASS |
 
 ## 4. Bulk CSV Prediction Tests
 
@@ -45,12 +45,12 @@ Pages:
 | BP-03 | Output columns | `Review Text`, `Predicted Sentiment`, `Confidence` | PASS |
 | BP-04 | Three sentiment examples | Positive, Negative and Neutral returned | PASS |
 | BP-05 | Download results | Result CSV downloadable | PASS |
-| BP-06 | Missing review column | Clear accepted-column error | TO VERIFY |
-| BP-07 | Empty CSV | Clear error and processing stopped | TO VERIFY |
-| BP-08 | Invalid CSV | Invalid CSV error displayed | TO VERIFY |
-| BP-09 | Blank review rows | Blank reviews handled safely | TO VERIFY |
-| BP-10 | Above bulk row limit | Warning and row limit enforced | TO VERIFY |
-| BP-11 | Latin-1 CSV | Encoding fallback works | TO VERIFY |
+| BP-06 | Missing review column | Clear accepted-column error | PASS |
+| BP-07 | Empty CSV | Clear error and processing stopped | PASS |
+| BP-08 | Invalid CSV | Invalid CSV error displayed | PASS |
+| BP-09 | Blank review rows | Blank reviews handled safely | PASS |
+| BP-10 | Above bulk row limit | Warning and row limit enforced | PASS |
+| BP-11 | Latin-1 CSV | Encoding fallback works | PASS |
 
 ## 5. Bulk Prediction Sample
 
@@ -74,21 +74,21 @@ Observed output:
 | ID | Scenario | Expected Behaviour | Status |
 |---|---|---|---|
 | VH-01 | No file uploaded | Prediction does not run | PASS |
-| VH-02 | Empty CSV | Error shown | TO VERIFY |
-| VH-03 | Malformed CSV | Parser error shown | TO VERIFY |
-| VH-04 | Missing review column | Accepted names shown | TO VERIFY |
-| VH-05 | Blank review rows | Safely handled | TO VERIFY |
-| VH-06 | Row limit exceeded | Warning + limit enforced | TO VERIFY |
-| VH-07 | New CSV after previous results | Old state invalidated | TO VERIFY |
+| VH-02 | Empty CSV | Error shown | PASS |
+| VH-03 | Malformed CSV | Parser error shown | PASS |
+| VH-04 | Missing review column | Accepted names shown | PASS |
+| VH-05 | Blank review rows | Safely handled | PASS |
+| VH-06 | Row limit exceeded | Warning + limit enforced | PASS |
+| VH-07 | New CSV after previous results | Old state invalidated | PASS |
 
 ## 7. Dashboard Tests
 
 | ID | Scenario | Expected Result | Status |
 |---|---|---|---|
 | DB-01 | Open Dashboard | Loads without error | PASS |
-| DB-02 | Model comparison | Six model results shown correctly | TO VERIFY |
-| DB-03 | Bulk analytics | Charts reflect current predictions | TO VERIFY |
-| DB-04 | Chart readability | Labels and values visible | TO VERIFY |
+| DB-02 | Model comparison | Six model results shown correctly | PASS |
+| DB-03 | Bulk analytics | Charts reflect current predictions | PASS |
+| DB-04 | Chart readability | Labels and values visible | PASS |
 
 ## 8. Theme and UI Tests
 
@@ -98,15 +98,15 @@ Observed output:
 | UI-02 | Dark mode | Readable throughout app | PASS |
 | UI-03 | Sidebar navigation | All pages open | PASS |
 | UI-04 | Shared branding | Logo and branding consistent | PASS |
-| UI-05 | Footer | Displays without blocking content | TO VERIFY |
+| UI-05 | Footer | Displays without blocking content | PASS |
 | UI-06 | Bulk layout | Upload, results and charts usable | PASS |
 
 ## 9. Model Output Consistency
 
 | ID | Scenario | Expected Result | Status |
 |---|---|---|---|
-| MC-01 | Same review repeated | Consistent output | TO VERIFY |
-| MC-02 | Single vs bulk | Same review gets same sentiment | TO VERIFY |
+| MC-01 | Same review repeated | Consistent output | PASS |
+| MC-02 | Single vs bulk | Same review gets same sentiment | PASS |
 | MC-03 | Confidence | Valid probability range | PASS |
 | MC-04 | Label set | Only Positive, Neutral or Negative | PASS |
 
