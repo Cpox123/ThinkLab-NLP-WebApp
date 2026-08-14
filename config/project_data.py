@@ -4,8 +4,8 @@ PROJECT_TITLE = "NLP-based Product Review Sentiment Classification System"
 # Branding
 # --------------------------------------------------
 
-APP_NAME = "NLP Sentiment Analyzer"
-GROUP_NAME = "ThinkLab - Group 30"
+APP_NAME = "ThinkLab Sentiment Analyzer"
+GROUP_NAME = "ThinkLab Team "
 COURSE = "CCS3356 Natural Language Processing"
 COPYRIGHT_YEAR = "2026"
 
@@ -109,23 +109,26 @@ PIPELINE_STEPS = [
 ]
 
 # --------------------------------------------------
-# Team (edit with your real details)
+# Team
 # --------------------------------------------------
 
 TEAM_MEMBERS = [
     {
         "name": "Buddhisha Wijerathne (Leader)",
         "sid": "CIT-24-01-0118",
-        "role": "Data Collection, Preprocessing, App Development & App Deployment",
+        "role": "NLP Pipeline, Model Development, Data Preparation & Deployment",
+        "photo": "assets/team/member1.jpeg",
     },
     {
         "name": "Shalitha Sachithra",
         "sid": "CIT-24-01-0084",
-        "role": "ML/DL Models, Evaluation, UI Design & App Development",
+        "role": "NLP Pipeline, Model Development, Evaluation & UI Development",
+        "photo": "assets/team/member2.jpeg",
     },
     {
         "name": "Pawan Vihanga",
         "sid": "CIT-24-01-0459",
-        "role": "Model Testing, Documentation, App Development",
+        "role": "NLP Pipeline, Model Development, Testing & Documentation",
+        "photo": "assets/team/member3.jpeg",
     },
 ]
